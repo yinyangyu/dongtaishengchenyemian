@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        ul {
+            list-style: none;
+            width: 500px;
+            margin: 0 auto;
+        }
+
+        li {
+            font-size: 22px;
+            font-weight: 700;
+            color: hotpink;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        #app {
+            text-align: center;
+        }
+
+        ul>li {
+            text-align: left;
+        }
+
+        li.done span {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        li a {
+            text-decoration: none;
+            color: white;
+            border: 1px solid #000;
+            border-radius: 50%;
+            background-color: black;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>任务列表</h2>
+    <div id="app">
+        <input type="text" placeholder="请输入代办事件" v-model="someThing">
+        <input type="button" value="增加" @click="add">
+        <br>
+        <h3>总数:{{list.length}}---已完成:{{doneNum}}</h3>
+        <ul>
+            <li :class="{done: item.isDone }" v-for="(item, index) in list" @click="doThis(index)">
+                <span>{{index+1}}.{{item.name}}</span>
+                <a @click.stop="remove(index)" href="javascript:void(0)">8</a>
+            </li>
+        </ul>
+    </div>
+</body>
+
+</html>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+        // 读取保存的数据
+        let list = window.localStorage.getItem('list');
+    // 数据存在
+    if (list) {
+        // string->js对象(数组)
+        list = JSON.parse(list);
+    } else {
+        // 数据不存在
+        // 初始数据 空数组
+        list = [{
+                name: '买菜',
+                isDone: true
+            },
+            {
+                name: '洗菜',
+                isDone: false
+            },
+            {
+                name: '切菜',
+                isDone: false
+            },
+            {
+                name: '烧菜',
+                isDone: false
+            }
+        ]
+    }
+
+    let app = new Vue({
+        el: '#app',
+        data: {
+            someThing: '',
+            list
+        },
+        // 绑定的方法
+        methods: {
+            // 新增代办事项
+            add() {
+                // 取值
+                // 增加到数组中
+                this.list.push({
+                    name: this.someThing,
+                    isDone: false
+                })
+                this.saveData();
+            },
+            // 干完某件事
+            doThis(index) {
+                // 修改 对应的 数组中元素的 isDome 取反
+                this.list[index].isDone = !this.list[index].isDone;
+                this.saveData();
+            },
+            remove(index) {
+                // 删除数组中对应的值
+                console.log('删除了哟');
+                this.list.splice(index, 1);
+                this.saveData();
+            },
+            saveData() {
+                window.localStorage.setItem('list',JSON.stringify(app.list));
+            }
+        },
+        computed: {
+            // doneNum:function(){}
+            doneNum() {
+                // 计算isDone为 true的总数
+                let num = 0;
+                for (let i = 0; i < this.list.length; i++) {
+                    if (this.list[i].isDone) {
+                        num++;
+                    }
+                }
+
+                return num;
+            }
+        }
+    })
+</script>
